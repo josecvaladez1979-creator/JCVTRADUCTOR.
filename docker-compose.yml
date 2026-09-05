@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: jcvtraductor
+      POSTGRES_USER: jcv
+      POSTGRES_PASSWORD: jcv123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+      - "8002:8002"
+      - "8003:8003"
+      - "8004:8004"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://jcv:jcv123@postgres:5432/jcvtraductor
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  nllb:
+    build: ./ai_models/nllb
+    ports:
+      - "8003:8003"
+
+  qwen:
+    build: ./ai_models/qwen
+    ports:
+      - "8002:8002"
+
+volumes:
+  pgdata:
