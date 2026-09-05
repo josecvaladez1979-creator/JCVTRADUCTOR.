@@ -1,0 +1,20 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+*.lock
+
+# Python / AI
+__pycache__/
+*.pyc
+venv/
+.env
+models/
+
+# Docker
+pgdata/
+
+# Keys
+*.key
+*.pem
