@@ -1,6 +1,6 @@
 # JCV TRADUCTOR - COBROS $5 y $15 + API KEY EMPRESAS
 import stripe
-stripe.api_key = "sk_test_TU_LLAVE_AQUI"
+stripe.api_key = "sk_test_51UCnBLK4if6qZOxwxVNbuhNBkNtdOMPh9YNmo5b589xkbm8duszfa7nJkarVBCytKWRXbMwBzxNoeJQu418c9IDi00l8kuFQYn
 
 PLANS = {
   "pro": {"price": 5, "texto": -1, "voz": -1, "video": 900},
