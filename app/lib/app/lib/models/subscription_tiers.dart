@@ -11,10 +11,11 @@ class SubscriptionTiers {
     },
     Plan.pro: {
       'price': 5,
-      'texto_min': -1, // -1 = ilimitado
+      'texto_min': -1,
       'voz_min': -1,
-      'video_min': 900, // 15 horas = 900 min
+      'video_min': 900,
       'mismo_idioma_ilimitado': true,
+      'checkout_url': 'https://buy.stripe.com/test_8x29AU7Mq1MV8cwaevawo00',
     },
     Plan.enterprise: {
       'price': 15,
@@ -23,13 +24,6 @@ class SubscriptionTiers {
       'video_min': -1,
       'api_key': true,
       'mismo_idioma_ilimitado': true,
+      'checkout_url': 'https://buy.stripe.com/test_8x29AU7Mq1MV8cwaevawo00',
     },
   };
-
-  static bool canTranslate({required Plan plan, required bool mismoIdioma, required String tipo, required int usados}) {
-    if (mismoIdioma) return true; // Siempre gratis si es mismo idioma
-    var limite = tiers[plan]!['${tipo}_min'];
-    if (limite == -1) return true;
-    return usados < limite;
-  }
-}
