@@ -6,26 +6,21 @@ import 'core/translation/translation_service.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/chats/chats_screen.dart';
 import 'features/calls/call_manager.dart';
-import 'features/billing/billing_service.dart';
+import 'services/payment_service.dart';
+import 'models/subscription_tiers.dart';
 
 // Instancias globales reales
 final secureStorage = FlutterSecureStorage();
 final signalProtocol = SignalProtocol();
 final webrtcService = WebRTCService();
 final translationService = TranslationService();
-final billingService = BillingService();
 final callManager = CallManager();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 1. Inicializar cifrado libsignal real
   await signalProtocol.initIdentity();
-  
-  // 2. Inicializar WebRTC
   await webrtcService.init();
-  
-  // 3. Inicializar motores de traducción
   await translationService.init();
 
   runApp(JCVTRADUCTOR());
@@ -41,7 +36,6 @@ class JCVTRADUCTOR extends StatelessWidget {
         primaryColor: Color(0xFF00FF88),
         scaffoldBackgroundColor: Color(0xFF0A0E1A),
       ),
-      // Verifica si ya esta logeado con +52
       home: FutureBuilder<String?>(
         future: secureStorage.read(key: 'session_token'),
         builder: (context, snapshot) {
@@ -49,9 +43,9 @@ class JCVTRADUCTOR extends StatelessWidget {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
           }
           if (snapshot.data != null) {
-            return ChatsScreen(); // Ya logueado
+            return ChatsScreen();
           }
-          return AuthScreen(); // Registro por numero +52
+          return AuthScreen();
         },
       ),
       routes: {
@@ -70,18 +64,33 @@ class CallManagerScreen extends StatelessWidget {
       appBar: AppBar(title: Text('Llamadas y Video JCV')),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () => callManager.startVoiceCall('+521...'),
               child: Text('Llamada de Voz WebRTC'),
             ),
+            SizedBox(height: 12),
             ElevatedButton(
               onPressed: () => callManager.startVideoCall('+521...'),
               child: Text('Video Llamada WebRTC'),
             ),
+            SizedBox(height: 24),
+            // BOTON QUE YA COBRA $5 REALES
             ElevatedButton(
-              onPressed: () => billingService.payWithStripe(99.0),
-              child: Text('Pagar con Stripe'),
+              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF00FF88)),
+              onPressed: () async {
+                await PaymentService.launchCheckout(SubscriptionTier.proVoice);
+              },
+              child: Text('PAGAR PLAN PRO \$5 - VOZ', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+            SizedBox(height: 12),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF00D4FF)),
+              onPressed: () async {
+                await PaymentService.launchCheckout(SubscriptionTier.proVideo);
+              },
+              child: Text('PAGAR PLAN PRO \$15 - VIDEO', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
