@@ -9,7 +9,6 @@ import 'features/calls/call_manager.dart';
 import 'services/payment_service.dart';
 import 'models/subscription_tiers.dart';
 
-// Instancias globales reales
 final secureStorage = FlutterSecureStorage();
 final signalProtocol = SignalProtocol();
 final webrtcService = WebRTCService();
