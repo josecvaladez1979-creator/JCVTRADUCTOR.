@@ -1,9 +1,11 @@
 name: jcvtraductor
 description: JCV TRADUCTOR REAL
-publish_to: 'none'
+publish_to: none
 version: 1.0.0+1
+
 environment:
   sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -12,6 +14,12 @@ dependencies:
   dio: ^5.4.0
   flutter_secure_storage: ^9.0.0
   stripe_payment: ^1.1.4
-cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.6
+  url_launcher: ^6.2.5
+  speech_to_text: ^6.6.0
+  flutter_tts: ^4.0.2
+  permission_handler: ^11.3.1
+  libphonenumber_plugin: ^0.3.2
+
 flutter:
   uses-material-design: true
