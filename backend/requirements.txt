@@ -1,5 +1,7 @@
 fastapi
 uvicorn
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers==4.41.2
+sentencepiece
 python-multipart
-psycopg2-binary
-redis
+accelerate
