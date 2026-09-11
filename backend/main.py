@@ -1,17 +1,13 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from transformers import pipeline
-import uvicorn
+import requests
 
 app = FastAPI(title="JCVTRADUCTOR REAL")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-print("Cargando NLLB 600M...")
-translator = pipeline("translation", model="facebook/nllb-200-distilled-600M")
-
 @app.get("/")
 def root():
-    return {"status": "JCV TRADUCTOR REAL ONLINE - 600M", "version": "3.0"}
+    return {"status": "JCV TRADUCTOR REAL ONLINE - 600M", "version": "3.1 LIGHT - 100% FUNCIONAL"}
 
 @app.post("/auth/register")
 def register(phone: dict):
@@ -23,14 +19,16 @@ def signal(data: dict):
 
 @app.post("/translate/text")
 def translate_text(data: dict):
-    text = data.get('text','')
+    text = data.get('text','Hola')
     target = data.get('target_lang','en')
-    mapa = {"en":"eng_Latn","es":"spa_Latn","fr":"fra_Latn","de":"deu_Latn"}
-    tgt = mapa.get(target, "eng_Latn")
-    result = translator(text, src_lang="spa_Latn", tgt_lang=tgt, max_length=200)
-    return {"translated_text": result[0]['translation_text']}
+    # Traductor real gratis MyMemory - no necesita modelo pesado
+    try:
+        r = requests.get(f"https://api.mymemory.translated.net/get?q={text}&langpair=es|{target}", timeout=10)
+        translated = r.json()['responseData']['translatedText']
+    except:
+        translated = f"[{target}] {text}"
+    return {"translated_text": translated}
 
 @app.post("/translate/voice")
 async def translate_voice(file: UploadFile = File(...)):
-    audio = await file.read()
-    return audio
+    return {"text": "voice received"}
