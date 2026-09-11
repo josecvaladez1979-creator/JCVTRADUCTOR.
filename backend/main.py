@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import pipeline
 import uvicorn
@@ -25,7 +25,7 @@ def signal(data: dict):
 def translate_text(data: dict):
     text = data.get('text','')
     target = data.get('target_lang','en')
-    mapa = {"en":"eng_Latn","es":"spa_Latn","fr":"fra_Latn","de":"deu_Latn","pt":"por_Latn"}
+    mapa = {"en":"eng_Latn","es":"spa_Latn","fr":"fra_Latn","de":"deu_Latn"}
     tgt = mapa.get(target, "eng_Latn")
     result = translator(text, src_lang="spa_Latn", tgt_lang=tgt, max_length=200)
     return {"translated_text": result[0]['translation_text']}
