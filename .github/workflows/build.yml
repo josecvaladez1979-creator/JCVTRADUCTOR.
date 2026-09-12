@@ -1,4 +1,3 @@
-name: Build APK
 on: [push]
 jobs:
   build:
@@ -16,10 +15,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.5
+      - name: Fix AndroidX
+        run: |
+          echo "android.useAndroidX=true" > gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "android.useAndroidX=true" > app/JCVTraductorapp/gradle.properties || true
+          echo "android.enableJetifier=true" >> app/JCVTraductorapp/gradle.properties || true
       - name: Build APK
-        run: cd app/JCVTraductorapp && gradle wrapper && chmod +x gradlew &&./gradlew assembleDebug --stacktrace
+        run: cd app/JCVTraductorapp && gradle assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: JCV-Traductor-APK
-          path: app/JCVTraductorapp/build/outputs/apk/debug/*.apk
+          name: apk-debug
+          path: app/JCVTraductorapp/build/outputs/apk/debug/app-debug.apk
