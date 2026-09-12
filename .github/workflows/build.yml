@@ -15,12 +15,15 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.5
-      - name: Fix AndroidX
+      - name: Fix structure
         run: |
+          mkdir -p app/JCVTraductorapp/src/main
+          cp -r app/JCVTraductorapp/main/* app/JCVTraductorapp/src/main/ 2>/dev/null || true
           echo "android.useAndroidX=true" > gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
           echo "android.useAndroidX=true" > app/JCVTraductorapp/gradle.properties || true
           echo "android.enableJetifier=true" >> app/JCVTraductorapp/gradle.properties || true
+          ls -R app/JCVTraductorapp/src/main
       - name: Build APK
         run: cd app/JCVTraductorapp && gradle assembleDebug
       - name: Upload APK
