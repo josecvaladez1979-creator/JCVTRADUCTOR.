@@ -12,17 +12,8 @@ jobs:
           java-version: '17'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      - name: Create Gradle wrapper files
-        run: |
-          echo "include ':app:JCVTraductorapp'" > settings.gradle
-          echo "rootProject.name='JCVTRADUCTOR'" >> settings.gradle
-          cat settings.gradle
-          ls -R app/JCVTraductorapp/
       - name: Build APK
-        run: |
-          cd app/JCVTraductorapp
-          gradle wrapper
-         ./gradlew assembleDebug --stacktrace
+        run: cd app/JCVTraductorapp && gradle wrapper && chmod +x gradlew &&./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
