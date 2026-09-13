@@ -4,29 +4,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.5
       - name: Fix structure
         run: |
           mkdir -p app/JCVTraductorapp/src/main
           cp -r app/JCVTraductorapp/main/* app/JCVTraductorapp/src/main/ 2>/dev/null || true
+          mkdir -p app/JCVTraductorapp
           echo "android.useAndroidX=true" > gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
-          echo "android.useAndroidX=true" > app/JCVTraductorapp/gradle.properties || true
-          echo "android.enableJetifier=true" >> app/JCVTraductorapp/gradle.properties || true
       - name: Build APK
-        run: cd app/JCVTraductorapp && gradle assembleDebug
+        run: |
+          cd app/JCVTraductorapp
+          chmod +x gradlew 2>/dev/null || true
+          gradle assembleDebug --stacktrace
+          find. -name "*.apk" -type f
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: apk-debug
-          path: "**/app-debug.apk"
+          name: JCVTraductor-APK
+          path: |
+            **/*.apk
+            **/build/**/*.apk
+          if-no-files-found: warn
