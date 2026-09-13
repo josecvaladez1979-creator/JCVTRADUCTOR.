@@ -1,35 +1,58 @@
+name: construir
 on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Ver estructura
+        run: |
+          pwd
+          ls -R
+          echo "---"
+          cat app/JCVTraductorapp/build.gradle 2>/dev/null || cat app/build.gradle 2>/dev/null || cat build.gradle 2>/dev/null || echo "no build.gradle root"
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - uses: android-actions/setup-android@v3
-      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Arreglar proyecto
+        run: |
+          # Crear gradle.properties si no existe
+          echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+
+          # Si el proyecto está en app/JCVTraductorapp/main, moverlo a src/main
+          if [ -d "app/JCVTraductorapp/main" ]; then
+            mkdir -p app/JCVTraductorapp/src/main
+            cp -r app/JCVTraductorapp/main/* app/JCVTraductorapp/src/main/ 2>/dev/null || true
+            echo "Copiado main a src/main"
+          fi
+          ls -R app/JCVTraductorapp/src/ 2>/dev/null || true
+
+      - name: Crear APK
+        uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.5
-      - name: Fix structure
+
+      - name: Build con logs
         run: |
-          mkdir -p app/JCVTraductorapp/src/main
-          cp -r app/JCVTraductorapp/main/* app/JCVTraductorapp/src/main/ 2>/dev/null || true
-          mkdir -p app/JCVTraductorapp
-          echo "android.useAndroidX=true" > gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
-      - name: Build APK
-        run: |
-          cd app/JCVTraductorapp
-          chmod +x gradlew 2>/dev/null || true
-          gradle assembleDebug --stacktrace
-          find . -name "*.apk" -type f
-      - name: Upload APK
+          cd app/JCVTraductorapp 2>/dev/null || cd app 2>/dev/null || cd.
+          gradle assembleDebug --info --stacktrace ||./gradlew assembleDebug --info --stacktrace
+
+      - name: Buscar APK
+        if: always()
+        run: find . -name "*.apk" -type f -ls
+
+      - name: Subir APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: JCVTraductor-APK
           path: |
             **/*.apk
-            **/build/**/*.apk
           if-no-files-found: warn
