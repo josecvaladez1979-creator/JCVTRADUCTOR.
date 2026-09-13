@@ -24,7 +24,7 @@ jobs:
           cd app/JCVTraductorapp
           chmod +x gradlew 2>/dev/null || true
           gradle assembleDebug --stacktrace
-          find. -name "*.apk" -type f
+          find . -name "*.apk" -type f
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
