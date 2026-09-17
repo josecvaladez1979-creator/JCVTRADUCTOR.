@@ -1,56 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JCV CHAT & TRANS</title>
 <style>
-body{margin:0;background:#0b141a;color:#fff;font-family:system-ui;height:100dvh;display:flex;flex-direction:column}
-.header{height:56px;background:#202c33;display:flex;align-items:center;padding:0 15px;justify-content:space-between}
-.logo{font-weight:900;font-size:26px;background:linear-gradient(90deg,#2b8cff,#00e676);-webkit-background-clip:text;color:transparent}
+body{margin:0;font-family:system-ui;background:#0b141a;color:#fff;height:100dvh;display:flex;flex-direction:column}
+.header{height:56px;background:#202c33;display:flex;align-items:center;padding:0 16px;justify-content:space-between}
+.logo{font-weight:900;font-size:26px;background:linear-gradient(90deg,#0a84ff,#00d084);-webkit-background-clip:text;color:transparent}
 #chat{flex:1;overflow-y:auto;padding:12px;background:#111b21}
-.msg{background:#202c33;padding:8px 12px;border-radius:10px;margin:6px 0;max-width:80%}
+.msg{background:#202c33;padding:10px 14px;border-radius:12px;margin:8px 0;max-width:80%}
 .mine{background:#005c4b;margin-left:auto}
-.bar{padding:8px;background:#202c33;display:flex;gap:6px}
-.bar input{flex:1;padding:12px;border-radius:20px;border:none;background:#2a3942;color:#fff}
-.bar button{background:linear-gradient(90deg,#2b8cff,#00e676);border:none;border-radius:50%;width:44px;height:44px;color:#fff;font-weight:bold}
-.login{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px}
-.btn{padding:16px 32px;border-radius:30px;border:none;background:linear-gradient(90deg,#2b8cff,#00e676);color:#fff;font-weight:bold;font-size:18px}
+.bar{padding:10px;background:#202c33;display:flex;gap:8px}
+.bar input{flex:1;padding:14px;border-radius:24px;border:none;background:#2a3942;color:#fff}
+.bar button{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(90deg,#0a84ff,#00d084);color:#fff;font-size:18px}
+#login{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
+.btn{padding:16px 36px;border-radius:30px;border:none;background:linear-gradient(90deg,#0a84ff,#00d084);color:#fff;font-weight:900;font-size:18px}
 </style>
 </head>
 <body>
-<div id="login" class="login">
-<div style="font-size:70px;font-weight:900;background:linear-gradient(90deg,#2b8cff,#00e676);-webkit-background-clip:text;color:transparent">JCV</div>
+<div id="login">
+<div style="font-size:70px;font-weight:900;background:linear-gradient(90deg,#0a84ff,#00d084);-webkit-background-clip:text;color:transparent">JCV</div>
 <div style="letter-spacing:6px;margin-bottom:20px">CHAT & TRANS</div>
-<p>Fusión limpia WhatsApp + WeChat<br>con traducción mundial</p>
-<button class="btn" id="btnLogin">Entrar con Google</button>
+<p>Fusion limpia WhatsApp + WeChat</p>
+<button class="btn" id="btnLogin">ENTRAR CON GOOGLE</button>
 <p id="err"></p>
 </div>
 <div id="app" style="display:none;flex-direction:column;height:100dvh">
-<div class="header"><div class="logo">JCV CHAT</div><div id="out" style="font-size:12px;background:#2a3942;padding:6px 12px;border-radius:20px">Salir</div></div>
+<div class="header"><div class="logo">JCV</div><div id="out" style="font-size:12px;background:#2a3942;padding:6px 12px;border-radius:20px">Salir</div></div>
 <div id="chat"></div>
 <div class="bar"><input id="txt" placeholder="Mensaje..."><button id="send">➤</button></div>
 </div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, getRedirectResult, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSy...PEGA_TU_APIKEY_AQUI",
-  authDomain: "jcv-chat-trans.firebaseapp.com",
-  projectId: "jcv-chat-trans",
-};
-const appF=initializeApp(firebaseConfig);
-const auth=getAuth(appF); const db=getFirestore(appF); const prov=new GoogleAuthProvider();
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {getAuth,signInWithRedirect,GoogleAuthProvider,onAuthStateChanged,getRedirectResult,signOut} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {getFirestore,collection,addDoc,query,orderBy,onSnapshot,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyColocaTuApiKeyAqui",authDomain:"jcv-chat-trans.firebaseapp.com",projectId:"jcv-chat-trans"};
+const appF=initializeApp(firebaseConfig);const auth=getAuth(appF);const db=getFirestore(appF);const prov=new GoogleAuthProvider();
 document.getElementById('btnLogin').onclick=()=>signInWithRedirect(auth,prov);
 getRedirectResult(auth).catch(e=>document.getElementById('err').innerText=e.message);
 document.getElementById('out').onclick=()=>signOut(auth);
 onAuthStateChanged(auth,u=>{
- if(u){login.style.display='none';app.style.display='flex';
-  const q=query(collection(db,"mensajes"),orderBy("fecha","asc"));
-  onSnapshot(q,s=>{chat.innerHTML='';s.forEach(d=>{const m=d.data();chat.innerHTML+=`<div class="msg ${m.uid==u.uid?'mine':''}"><b>${m.nombre}:</b> ${m.texto}</div>`});chat.scrollTop=chat.scrollHeight;});
- }else{login.style.display='flex';app.style.display='none';}
+if(u){document.getElementById('login').style.display='none';document.getElementById('app').style.display='flex';
+const q=query(collection(db,"mensajes"),orderBy("fecha","asc"));
+onSnapshot(q,s=>{const c=document.getElementById('chat');c.innerHTML='';s.forEach(d=>{const m=d.data();c.innerHTML+=`<div class="msg ${m.uid==u.uid?'mine':''}"><b style="font-size:11px">${m.nombre}:</b> ${m.texto}</div>`});c.scrollTop=c.scrollHeight;});
+}else{document.getElementById('login').style.display='flex';document.getElementById('app').style.display='none';}
 });
-send.onclick=async()=>{if(!txt.value)return;await addDoc(collection(db,"mensajes"),{texto:txt.value,nombre:auth.currentUser.displayName,uid:auth.currentUser.uid,fecha:serverTimestamp()});txt.value='';};
+document.getElementById('send').onclick=async()=>{const t=document.getElementById('txt');if(!t.value)return;await addDoc(collection(db,"mensajes"),{texto:t.value,nombre:auth.currentUser.displayName,uid:auth.currentUser.uid,fecha:serverTimestamp()});t.value='';};
 </script>
 </body>
 </html>
