@@ -1,34 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JCV CHAT & TRANS</title></head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JCV CHAT & TRANS</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:#0f0f0f;color:white;display:flex;justify-content:center;align-items:center;min-height:100vh}
+  .container{background:#1a1a1a;width:95%;max-width:400px;border-radius:20px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:center}
+  .logo{width:90px;height:90px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border-radius:22px;display:flex;justify-content:center;align-items:center;margin:0 auto 15px;font-size:40px;font-weight:800}
+  h1{font-size:22px;letter-spacing:1px;margin-bottom:5px}
+  p.sub{color:#888;font-size:13px;margin-bottom:25px}
+  #loginDiv button{width:100%;padding:14px;background:white;color:#111;border:none;border-radius:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+  #chatDiv{display:none;text-align:left}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+  .header img{width:32px;height:32px;border-radius:50%}
+  #messages{height:350px;overflow-y:auto;background:#111;border-radius:12px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+  .msg{background:#2a2a2a;padding:8px 12px;border-radius:12px;max-width:80%;font-size:14px}
+  .msg.me{align-self:flex-end;background:#3b82f6}
+  .input-area{display:flex;gap:8px}
+  .input-area input{flex:1;padding:12px;border-radius:10px;border:none;background:#2a2a2a;color:white;outline:none}
+  .input-area button{padding:12px 16px;border:none;border-radius:10px;background:#3b82f6;color:white;font-weight:700;cursor:pointer}
+</style>
+</head>
 <body>
+<div class="container">
+  <div class="logo">JC</div>
+  <h1>JCV CHAT & TRANS</h1>
+  <p class="sub">Chat en tiempo real con traducción</p>
+
+  <div id="loginDiv">
+    <button id="googleLogin"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> ENTRAR CON GOOGLE</button>
+  </div>
+
+  <div id="chatDiv">
+    <div class="header">
+      <span id="userName"></span>
+      <button id="logout" style="background:none;border:none;color:#888;cursor:pointer">Salir</button>
+    </div>
+    <div id="messages"></div>
+    <div class="input-area">
+      <input id="msgInput" placeholder="Escribe un mensaje...">
+      <button id="sendBtn">➤</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB... pon aquí tu apiKey de Firebase",
+  apiKey: "AIzaSyAYjNv6ABTOKKjvrGBR1O8ewVij-qKKHuw",
   authDomain: "jcv-chat-trans.firebaseapp.com",
   projectId: "jcv-chat-trans",
-  appId: "1:..."
+  storageBucket: "jcv-chat-trans.firebasestorage.app",
+  messagingSenderId: "67823961349",
+  appId: "1:67823961349:web:c69d9ef57102d06788a36c",
+  measurementId: "G-TEYL4C9CX5"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-const btn = document.getElementById('loginBtn');
-btn.onclick = () => signInWithRedirect(auth, provider);
+const loginDiv = document.getElementById('loginDiv');
+const chatDiv = document.getElementById('chatDiv');
+const messagesDiv = document.getElementById('messages');
 
-getRedirectResult(auth).then((res)=>{
-  if(res){ location.href = "chat.html"; }
+document.getElementById('googleLogin').onclick = () => signInWithPopup(auth, provider).catch(e=>alert(e.message));
+document.getElementById('logout').onclick = () => signOut(auth);
+document.getElementById('sendBtn').onclick = sendMessage;
+document.getElementById('msgInput').addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
+
+async function sendMessage(){
+  const input = document.getElementById('msgInput');
+  if(!input.value.trim() || !auth.currentUser) return;
+  await addDoc(collection(db, "mensajes"), {
+    texto: input.value,
+    uid: auth.currentUser.uid,
+    nombre: auth.currentUser.displayName,
+    fecha: serverTimestamp()
+  });
+  input.value="";
+}
+
+onAuthStateChanged(auth, user=>{
+  if(user){
+    loginDiv.style.display="none";
+    chatDiv.style.display="block";
+    document.getElementById('userName').textContent = user.displayName;
+    const q = query(collection(db,"mensajes"), orderBy("fecha"));
+    onSnapshot(q, snap=>{
+      messagesDiv.innerHTML="";
+      snap.forEach(doc=>{
+        const d = doc.data();
+        const div = document.createElement('div');
+        div.className = d.uid===user.uid ? "msg me" : "msg";
+        div.textContent = `${d.nombre}: ${d.texto}`;
+        messagesDiv.appendChild(div);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+  } else {
+    loginDiv.style.display="block";
+    chatDiv.style.display="none";
+  }
 });
 </script>
-
-<div style="height:100vh;background:linear-gradient(135deg,#0a84ff,#00e6a0);display:flex;flex-direction:column;align-items:center;justify-content:center">
-  <div style="font-size:100px;font-weight:900;color:#0056b3">JCV</div>
-  <div style="letter-spacing:4px;font-weight:700;color:#0b4a7a">CHAT & TRANS</div>
-  <button id="loginBtn" style="margin-top:30px;background:white;border:0;padding:16px 28px;border-radius:99px;font-weight:800;box-shadow:0 10px 20px rgba(0,0,0,.2)">G ENTRAR CON GOOGLE</button>
-</div>
 </body>
 </html>
